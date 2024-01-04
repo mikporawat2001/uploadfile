@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Download</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #fda90e;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Site อัพโหลดไฟล์ และ รูปภาพ</h1>
+    <img src="https://shorturl.asia/SOYsE" alt="รูปโฟลเดอร์" >
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="button" onclick="uploadFile()">Upload File</button>
+    </form>
+    <h2>ไฟล์ที่อัพโหลดสำเร็จ</h2>
+    <ul id="fileList"></ul>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const formData = new FormData(document.getElementById('uploadForm'));
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                listFiles();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function listFiles() {
+            fetch('/files')
+            .then(response => response.json())
+            .then(data => {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+
+                data.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        ${file.originalname}
+                        <a href="/download/${file.id}" download><button class="btn-primary">Download</button></a>
+
+                    `;
+                    fileList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Initial list of files when the page loads
+        listFiles();
+    </script>
+</body>
+</html>
